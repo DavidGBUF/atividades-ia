@@ -1,5 +1,6 @@
 import random
 import copy
+import time
 
 # Função para calcular conflitos em uma solução
 def calcularConflitos(tabuleiro):
@@ -32,20 +33,23 @@ def gerarVizinho(tabuleiro):
 def stochasticHillClimbing(iteracoes=500):
     tabuleiro = [random.randint(0, 7) for _ in range(8)]
     conflitos = calcularConflitos(tabuleiro)
+    tempo_inicial = time.time()
+    tempo_execucao = 0
 
     for i in range(iteracoes):
         if conflitos == 0:  # Se encontrou uma solução sem conflitos, para
             break
-
+        
         vizinho = gerarVizinho(tabuleiro)
         novosConflitos = calcularConflitos(vizinho)
 
-        if novosConflitos <= conflitos:
-            return vizinho, novosConflitos
-    
-    return tabuleiro, conflitos
+        if novosConflitos < conflitos: # Se encontrou uma combinação diferente com menos conflitos, atualiza o tabuleiro
+            tabuleiro = vizinho
+            conflitos = novosConflitos
+    tempo_execucao = time.time() - tempo_inicial
+    return tabuleiro, conflitos, tempo_execucao, i
 
-solucao, totalConflitos = stochasticHillClimbing()
+solucao, totalConflitos, tempo, iteracoes = stochasticHillClimbing()
 
 if totalConflitos == 0:
     print(f"Solução encontrada: {solucao}")
