@@ -1,6 +1,8 @@
 import random
 import copy
 import time
+import numpy as np
+import matplotlib.pyplot as plt
 
 # Função para calcular conflitos em uma solução
 def calcularConflitos(tabuleiro):
@@ -30,7 +32,7 @@ def gerarVizinho(tabuleiro):
     novoTabuleiro[coluna] = linha
     return novoTabuleiro
 
-def stochasticHillClimbing(iteracoes=500):
+def stochasticHillClimbing(iteracoes=1000):
     tabuleiro = [random.randint(0, 7) for _ in range(8)]
     conflitos = calcularConflitos(tabuleiro)
     tempo_inicial = time.time()
@@ -49,9 +51,71 @@ def stochasticHillClimbing(iteracoes=500):
     tempo_execucao = time.time() - tempo_inicial
     return tabuleiro, conflitos, tempo_execucao, i
 
-solucao, totalConflitos, tempo, iteracoes = stochasticHillClimbing()
+# Executar 50 vezes
+solucoes = []
+conflitos = []
+tempos = []
+iteracoes = []
 
-if totalConflitos == 0:
-    print(f"Solução encontrada: {solucao}")
-else:
-    print(f"Solução parcial encontrada com {totalConflitos} conflitos: {solucao}")
+for i in range(50):
+    print(f"Execução {i}")
+    solucao, totalConflitos, tempo, i = stochasticHillClimbing()
+    solucoes.append(solucao)
+    conflitos.append(totalConflitos)
+    tempos.append(tempo)
+    iteracoes.append(i)
+
+# Calcular médias e desvios padrão
+media_conflitos = np.mean(conflitos)
+desvio_conflitos = np.std(conflitos)
+
+media_tempos = np.mean(tempos)
+desvio_tempos = np.std(tempos)
+
+media_iteracoes = np.mean(iteracoes)
+desvio_iteracoes = np.std(iteracoes)
+
+print(f'Média de conflitos: {media_conflitos}')
+print(f'Desvio padrão de conflitos: {desvio_conflitos}')
+
+print(f'Média do tempo de execução: {media_tempos:.4f} segundos')
+print(f'Desvio padrão do tempo de execução: {desvio_tempos:.4f} segundos')
+
+print(f'Média de iterações: {media_iteracoes}')
+print(f'Desvio padrão de iterações: {desvio_iteracoes}')
+
+
+# Gráfico do número de conflitos
+plt.figure(figsize=(10, 5))
+plt.hist(conflitos, bins=15, color='salmon', edgecolor='black')
+plt.title("Distribuição do número de conflitos")
+plt.xlabel("Conflitos")
+plt.ylabel("Frequência")
+plt.show()
+
+# Gráfico do tempo de execução
+plt.figure(figsize=(10, 5))
+plt.hist(tempos, bins=15, color='salmon', edgecolor='black')
+plt.title("Distribuição do tempo de execução")
+plt.xlabel("Tempo (segundos)")
+plt.ylabel("Frequência")
+plt.show()
+
+# Gráfico do número de iterações
+plt.figure(figsize=(10, 5))
+plt.hist(iteracoes, bins=15, color='skyblue', edgecolor='black')
+plt.title("Distribuição do número de iterações")
+plt.xlabel("Número de iterações")
+plt.ylabel("Frequência")
+plt.show()
+
+solucoes_otimas = sorted(zip(solucoes, conflitos), key= lambda x: x[1])
+sol = []
+for s in solucoes_otimas:
+    if s[0] not in sol:
+        sol.append(s)
+
+print("Soluções ótimas")
+sol = sol[:5]
+for i in range(len(sol)):
+    print(f"Solução {i+1}: {sol[i]}")
